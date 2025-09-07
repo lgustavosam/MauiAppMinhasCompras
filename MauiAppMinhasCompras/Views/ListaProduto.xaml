@@ -13,11 +13,13 @@
 
     </ContentPage.ToolbarItems>
 
-    
+    <!-- Barra de busca que permite filtrar produtos dinamicamente -->
     <VerticalStackLayout>
         <SearchBar x:Name="txt_search"
                    Placeholder="Busca de Produtos"
                    TextChanged="txt_search_TextChanged"/>
+
+        <!-- Lista que exibe os produtos cadastrados -->
         <ListView x:Name="lst_produtos" ItemSelected="lst_produtos_ItemSelected">
             <ListView.Header>
                 <Grid ColumnDefinitions="*, *, *, *, *">
@@ -28,12 +30,17 @@
                     <Label Grid.Column="4" Text="Total" />                    
                 </Grid>
             </ListView.Header>
+
+            <!-- Template que define como cada item da lista será exibido -->
             <ListView.ItemTemplate>
                 <DataTemplate>
                     <ViewCell>
+                        <!-- Menu de contexto que aparece ao deslizar o item (ex: para excluir) -->
                         <ViewCell.ContextActions>
                             <MenuItem Text="Remover" Clicked="MenuItem_Clicked" />
                         </ViewCell.ContextActions>
+
+                        <!-- Grid que organiza os dados do produto em colunas -->
                         <Grid ColumnDefinitions="*, *, *, *, *">
                             <Label Grid.Column="0" Text="{Binding Id}" />
                             <Label Grid.Column="1" Text="{Binding Descricao}" />

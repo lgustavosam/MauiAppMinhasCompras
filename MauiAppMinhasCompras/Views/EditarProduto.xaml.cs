@@ -2,13 +2,16 @@ using MauiAppMinhasCompras.Models;
 
 namespace MauiAppMinhasCompras.Views;
 
+// Define a classe da página EditarProduto, que permite editar os dados de um produto existente
 public partial class EditarProduto : ContentPage
 {
-	public EditarProduto()
+    // Construtor da página
+    public EditarProduto()
 	{
 		InitializeComponent();
 	}
 
+    // Evento chamado quando o botão "Salvar" da Toolbar é clicado. Usado para configurar o salvar a edição.
     private async void ToolbarItem_Clicked(object sender, EventArgs e)
     {
         try
@@ -23,6 +26,7 @@ public partial class EditarProduto : ContentPage
                 Preco = Convert.ToDouble(txt_preco.Text)
             };
 
+            // Utilizou o metodo UPDATE. Diferente do novo produto onde usamos o metod INSERT.
             await App.Db.Update(p);
             await DisplayAlert("Sucesso!", "Registro Atualizado", "OK");
             await Navigation.PopAsync();
