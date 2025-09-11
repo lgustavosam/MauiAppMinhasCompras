@@ -11,7 +11,7 @@ public partial class ListaProduto : ContentPage
 
     public ListaProduto()
     {
-        
+
         InitializeComponent(); // Inicializa os componentes visuais definidos no XAML
 
         // Define a fonte de dados da lista visual (provavelmente um CollectionView ou ListView)
@@ -95,7 +95,7 @@ public partial class ListaProduto : ContentPage
             // Confirma com o usuário se deseja remover
             bool confirm = await DisplayAlert(
                 // foi personalizado aparecer nome do item.
-                "Tem certeza", $"Remover {p.Descricao}?", "Sim", "Não"); 
+                "Tem certeza", $"Remover {p.Descricao}?", "Sim", "Não");
 
             if (confirm)
             {
@@ -126,6 +126,29 @@ public partial class ListaProduto : ContentPage
         catch (Exception ex)
         {
             DisplayAlert("Ops", ex.Message, "OK");
+        }
+    }
+
+    //Usado para atualizar a lista.
+    private async void lst_produtos_Refreshing(object sender, EventArgs e)
+    {
+        try
+        {
+            lista.Clear(); // Limpa a lista atual
+
+            List<Produto> tmp = await App.Db.GetAll(); // Busca todos os produtos do banco
+
+            tmp.ForEach(i => lista.Add(i));// Adiciona cada produto à ObservableCollection
+
+        }
+        catch (Exception ex)
+        {
+            // Exibe uma mensagem de erro caso algo falhe
+            await DisplayAlert("Ops", ex.Message, "OK");
+        }
+        finally // Este bloco é sempre executado para fechar o recurso, se ele foi aberto
+        {
+            lst_produtos.IsRefreshing = false;
         }
     }
 }
