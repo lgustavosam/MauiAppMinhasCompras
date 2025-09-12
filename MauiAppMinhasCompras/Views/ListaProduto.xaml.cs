@@ -59,6 +59,8 @@ public partial class ListaProduto : ContentPage
         {
             string q = e.NewTextValue;
 
+            lst_produtos.IsRefreshing = true;
+
             lista.Clear(); // adicionado para que toda vez que edite, ao reabria lista, não duplique os dados.
 
             List<Produto> tmp = await App.Db.Search(q);
@@ -69,7 +71,10 @@ public partial class ListaProduto : ContentPage
         {
             await DisplayAlert("Ops", ex.Message, "OK");
         }
-
+        finally // Este bloco é sempre executado para fechar o recurso, se ele foi aberto
+        {
+            lst_produtos.IsRefreshing = false;
+        }
     }
 
     // Evento chamado ao clicar no botão "Somar" da Toolbar
