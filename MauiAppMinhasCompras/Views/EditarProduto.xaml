@@ -24,5 +24,12 @@
         <!-- Rótulo para o campo de preço unitário -->
         <Label Text="Preço Unitário:" />
         <Entry x:Name="txt_preco" Text="{Binding Preco}" Keyboard="Numeric" />
+
+        <!-- Rótulo para o campo da Categoria -->
+        <Label Text="Categoria:" />
+        <Picker x:Name="pickerCategoria"
+                Title="Selecione a Categoria"
+                Margin="10"/>
+
     </VerticalStackLayout>
 </ContentPage>

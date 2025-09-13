@@ -1,12 +1,17 @@
-using MauiAppMinhasCompras.Models;
+Ôªøusing MauiAppMinhasCompras.Models;
 using System.Collections.ObjectModel;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MauiAppMinhasCompras.Views;
 
-// Define a classe da p·gina ListaProduto, que exibe os produtos cadastrados
+
+
+// Define a classe da p√°gina ListaProduto, que exibe os produtos cadastrados
 public partial class ListaProduto : ContentPage
+
+
 {
-    // ColeÁ„o observ·vel que ser· exibida na interface e atualizada dinamicamente
+    // Cole√ß√£o observ√°vel que ser√° exibida na interface e atualizada dinamicamente
     ObservableCollection<Produto> lista = new ObservableCollection<Produto>();
 
     public ListaProduto()
@@ -16,9 +21,11 @@ public partial class ListaProduto : ContentPage
 
         // Define a fonte de dados da lista visual (provavelmente um CollectionView ou ListView)
         lst_produtos.ItemsSource = lista;
+
+
     }
 
-    // Evento chamado sempre que a p·gina aparece na tela (ideal para atualizar os dados)
+    // Evento chamado sempre que a p√°gina aparece na tela (ideal para atualizar os dados)
     protected async override void OnAppearing()
     {
         try
@@ -26,8 +33,17 @@ public partial class ListaProduto : ContentPage
             lista.Clear(); // Limpa a lista atual
 
             List<Produto> tmp = await App.Db.GetAll(); // Busca todos os produtos do banco
+            tmp.ForEach(i => lista.Add(i));// Adiciona cada produto √† ObservableCollection
 
-            tmp.ForEach(i => lista.Add(i));// Adiciona cada produto ‡ ObservableCollection
+            // Preenche o Picker com categorias distintas
+            var categorias = tmp
+                .Select(p => p.Categoria)
+                .Where(c => !string.IsNullOrWhiteSpace(c))
+                .Distinct()
+                .ToList();
+
+            categorias.Insert(0, "Todas"); // Adiciona op√ß√£o para exibir todos os produtos
+            pickerCategoria.ItemsSource = categorias;
 
         }
         catch (Exception ex)
@@ -37,7 +53,7 @@ public partial class ListaProduto : ContentPage
         }
 
     }
-    // Evento chamado ao clicar no bot„o "Adicionar" da Toolbar
+    // Evento chamado ao clicar no bot√£o "Adicionar" da Toolbar
     private void ToolbarItem_Clicked(object sender, EventArgs e)
     {
         try
@@ -52,7 +68,7 @@ public partial class ListaProduto : ContentPage
         }
     }
 
-    // Evento chamado sempre que o texto da SearchBar È alterado
+    // Evento chamado sempre que o texto da SearchBar √© alterado
     private async void txt_search_TextChanged(object sender, TextChangedEventArgs e)
     {
         try
@@ -61,7 +77,7 @@ public partial class ListaProduto : ContentPage
 
             lst_produtos.IsRefreshing = true;
 
-            lista.Clear(); // adicionado para que toda vez que edite, ao reabria lista, n„o duplique os dados.
+            lista.Clear(); // adicionado para que toda vez que edite, ao reabria lista, n√£o duplique os dados.
 
             List<Produto> tmp = await App.Db.Search(q);
 
@@ -71,18 +87,18 @@ public partial class ListaProduto : ContentPage
         {
             await DisplayAlert("Ops", ex.Message, "OK");
         }
-        finally // Este bloco È sempre executado para fechar o recurso, se ele foi aberto
+        finally // Este bloco √© sempre executado para fechar o recurso, se ele foi aberto
         {
             lst_produtos.IsRefreshing = false;
         }
     }
 
-    // Evento chamado ao clicar no bot„o "Somar" da Toolbar
+    // Evento chamado ao clicar no bot√£o "Somar" da Toolbar
     private void ToolbarItem_Clicked_1(object sender, EventArgs e)
     {
         double soma = lista.Sum(i => i.Total);
 
-        string msg = $"O total È {soma:C}";
+        string msg = $"O total √© {soma:C}";
 
         DisplayAlert("Total dos Produtos", msg, "OK");
     }
@@ -92,15 +108,15 @@ public partial class ListaProduto : ContentPage
     {
         try
         {
-            //sempre que eu clicar no produto do menu item, vai me dar a opÁ„o a seguir.
+            //sempre que eu clicar no produto do menu item, vai me dar a op√ß√£o a seguir.
             MenuItem selecionado = sender as MenuItem;
 
             Produto p = selecionado.BindingContext as Produto;
 
-            // Confirma com o usu·rio se deseja remover
+            // Confirma com o usu√°rio se deseja remover
             bool confirm = await DisplayAlert(
                 // foi personalizado aparecer nome do item.
-                "Tem certeza", $"Remover {p.Descricao}?", "Sim", "N„o");
+                "Tem certeza", $"Remover {p.Descricao}?", "Sim", "N√£o");
 
             if (confirm)
             {
@@ -120,7 +136,7 @@ public partial class ListaProduto : ContentPage
         {
             Produto p = e.SelectedItem as Produto;
 
-            // Ao clicar no item ele ir· para o editar produto
+            // Ao clicar no item ele ir√° para o editar produto
             Navigation.PushAsync(new Views.EditarProduto
             {
                 BindingContext = p,
@@ -143,7 +159,7 @@ public partial class ListaProduto : ContentPage
 
             List<Produto> tmp = await App.Db.GetAll(); // Busca todos os produtos do banco
 
-            tmp.ForEach(i => lista.Add(i));// Adiciona cada produto ‡ ObservableCollection
+            tmp.ForEach(i => lista.Add(i));// Adiciona cada produto √† ObservableCollection
 
         }
         catch (Exception ex)
@@ -151,9 +167,61 @@ public partial class ListaProduto : ContentPage
             // Exibe uma mensagem de erro caso algo falhe
             await DisplayAlert("Ops", ex.Message, "OK");
         }
-        finally // Este bloco È sempre executado para fechar o recurso, se ele foi aberto
+        finally // Este bloco √© sempre executado para fechar o recurso, se ele foi aberto
         {
             lst_produtos.IsRefreshing = false;
         }
+    }
+
+    private async void OnCategoriaSelecionada(object sender, EventArgs e)
+    {
+        try
+        {
+            string categoriaSelecionada = pickerCategoria.SelectedItem?.ToString();
+
+            lista.Clear(); // Limpa a lista atual
+
+            List<Produto> produtosFiltrados;
+
+            if (string.IsNullOrEmpty(categoriaSelecionada) || categoriaSelecionada == "Todas")
+            {
+                produtosFiltrados = await App.Db.GetAll();
+            }
+            else {
+
+                produtosFiltrados = await App.Db.GetProdutosPorCategoriaAsync(categoriaSelecionada);
+
+            }
+            produtosFiltrados.ForEach(p => lista.Add(p)); // Atualiza a ObservableCollection
+            
+        }
+        catch (Exception ex)
+        {
+            await DisplayAlert("Ops", ex.Message, "OK");
+        }
+    }
+
+    private void ToolbarItem_Clicked_2(object sender, EventArgs e)
+    {
+        var somaPorCategoria = lista
+        .GroupBy(p => p.Categoria)
+        .Select(g => new
+        {
+            Categoria = g.Key,
+            Total = g.Sum(p => p.Total)
+        });
+
+        double somaTotal = lista.Sum(p => p.Total);
+
+        string mensagem = "";
+        foreach (var grupo in somaPorCategoria)
+        {
+            mensagem += $"{grupo.Categoria}: {grupo.Total:C}\n";
+        }
+
+        mensagem += $"\nTotal: {somaTotal:C}";
+
+        DisplayAlert("Total por Categoria", mensagem, "OK");
+
     }
 }

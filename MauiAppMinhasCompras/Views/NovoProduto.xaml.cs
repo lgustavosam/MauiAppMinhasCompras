@@ -1,25 +1,32 @@
 using MauiAppMinhasCompras.Models;
+using MauiAppMinhasCompras.Helpers;
 using System.Threading.Tasks;
 
 namespace MauiAppMinhasCompras.Views;
 
 public partial class NovoProduto : ContentPage
 {
-	public NovoProduto()
+    
+    public NovoProduto()
 	{
 		InitializeComponent();
-	}
+
+        // Preenche o Picker com as categorias padrão
+        pickerCategoria.ItemsSource = CategoriaHelper.CategoriasPadrao;
+
+    }
 
     private async void ToolbarItem_Clicked(object sender, EventArgs e)
     {
 		try
 		{
 			Produto p = new Produto
-			{
-				Descricao = txt_descricao.Text,
-				Quantidade = Convert.ToDouble(txt_quantidade.Text),
-				Preco = Convert.ToDouble(txt_preco.Text)
-			};
+            {
+                Descricao = txt_descricao.Text,
+                Quantidade = Convert.ToDouble(txt_quantidade.Text),
+                Preco = Convert.ToDouble(txt_preco.Text),
+				Categoria = pickerCategoria.SelectedItem?.ToString(),
+            };
 
 			await App.Db.Insert(p);
 			await DisplayAlert("Sucesso!", "Registro Inserido", "OK");

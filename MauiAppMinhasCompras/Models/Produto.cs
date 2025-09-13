@@ -32,6 +32,10 @@ namespace MauiAppMinhasCompras.Models
         // Preço unitário do produto
         public double Preco { get; set; }
 
+        // Categoria do produto
+        public string Categoria { get; set; }
+
+
         // Propriedade calculada que retorna o valor total (quantidade × preço)
         public double Total { get => Quantidade * Preco; }
     }
